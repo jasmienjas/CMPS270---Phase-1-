@@ -25,17 +25,12 @@ namespace std {
             return hash1 ^ (hash2 << 1);
         }
     };
-
 }
 
 // Manhattan distance heuristic
 int heuristic(const Cell& a, const Cell& b) {
     return abs(a.first - b.first) + abs(a.second - b.second);
 }
-
-int main() {
-}
-    // Maze generation using Prim's algorithm
 
 // Helper function to get unvisited neighbors for maze generation
 vector<Cell> getUnvisitedNeighbors(const vector<vector<bool>>& maze, const Cell& cell) {
@@ -61,11 +56,12 @@ vector<Cell> getUnvisitedNeighbors(const vector<vector<bool>>& maze, const Cell&
 
     return neighbors;
 }
+
+// Maze generation using Prim's algorithm
 vector<vector<bool>> generateMaze(int width, int height) {
     vector<vector<bool>> maze(height, vector<bool>(width, false));
     Cell start_cell = make_pair(1, 1); // Start from (1, 1) to create borders
     maze[1][1] = true;
-}
 
     vector<Cell> frontier = {start_cell};
     while (!frontier.empty()) {
@@ -101,6 +97,34 @@ vector<vector<bool>> generateMaze(int width, int height) {
     }
 
     return maze;
+}
+
+int main() {
+    srand(time(nullptr));  // Seed the random number generator
+
+    // Generate maze
+    int width, height;
+    cout << "Enter the width of the maze: ";
+    cin >> width;
+    cout << "Enter the height of the maze: ";
+    cin >> height;
+
+    vector<vector<bool>> maze = generateMaze(width, height);
+
+    // TODO: Implement A* algorithm to find the shortest path
+
+    // Print the maze and the path
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            if (maze[y][x])
+                cout << "#";
+            else
+                cout << " ";
+        }
+        cout << endl;
+    }
+
+    return 0;
 }
 
 

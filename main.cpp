@@ -36,3 +36,31 @@ int main() {
     // Main function implementation will be added in Task 4.
     return 0;
 }
+
+// Helper function to get unvisited neighbors for maze generation
+vector<Cell> getUnvisitedNeighbors(const vector<vector<bool>>& maze, const Cell& cell) {
+    vector<Cell> neighbors;
+    int x = cell.first, y = cell.second;
+    int rows = maze.size(), cols = maze[0].size();
+
+    // Check left neighbor
+    if (x > 0 && !maze[y][x - 1])
+        neighbors.push_back(make_pair(x - 1, y));
+
+    // Check right neighbor
+    if (x < cols - 1 && !maze[y][x + 1])
+        neighbors.push_back(make_pair(x + 1, y));
+
+    // Check top neighbor
+    if (y > 0 && !maze[y - 1][x])
+        neighbors.push_back(make_pair(x, y - 1));
+
+    // Check bottom neighbor
+    if (y < rows - 1 && !maze[y + 1][x])
+        neighbors.push_back(make_pair(x, y + 1));
+
+    return neighbors;
+}
+
+
+

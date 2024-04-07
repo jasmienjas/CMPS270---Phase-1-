@@ -38,6 +38,7 @@ vector<vector<bool>> generateMaze(int width, int height) {
     vector<vector<bool>> maze(height, vector<bool>(width, false));
     Cell start_cell = make_pair(1, 1); // Start from (1, 1) to create borders
     maze[1][1] = true;
+}
 
     vector<Cell> frontier = {start_cell};
     while (!frontier.empty()) {

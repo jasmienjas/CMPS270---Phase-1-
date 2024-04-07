@@ -25,6 +25,8 @@ namespace std {
             return hash1 ^ (hash2 << 1);
         }
     };
+
+
 }
 
 // Manhattan distance heuristic

@@ -26,7 +26,6 @@ namespace std {
         }
     };
 
-
 }
 
 // Manhattan distance heuristic
@@ -35,7 +34,33 @@ int heuristic(const Cell& a, const Cell& b) {
 }
 
 int main() {
+}
     // Maze generation using Prim's algorithm
+
+// Helper function to get unvisited neighbors for maze generation
+vector<Cell> getUnvisitedNeighbors(const vector<vector<bool>>& maze, const Cell& cell) {
+    vector<Cell> neighbors;
+    int x = cell.first, y = cell.second;
+    int rows = maze.size(), cols = maze[0].size();
+
+    // Check left neighbor
+    if (x > 0 && !maze[y][x - 1])
+        neighbors.push_back(make_pair(x - 1, y));
+
+    // Check right neighbor
+    if (x < cols - 1 && !maze[y][x + 1])
+        neighbors.push_back(make_pair(x + 1, y));
+
+    // Check top neighbor
+    if (y > 0 && !maze[y - 1][x])
+        neighbors.push_back(make_pair(x, y - 1));
+
+    // Check bottom neighbor
+    if (y < rows - 1 && !maze[y + 1][x])
+        neighbors.push_back(make_pair(x, y + 1));
+
+    return neighbors;
+}
 vector<vector<bool>> generateMaze(int width, int height) {
     vector<vector<bool>> maze(height, vector<bool>(width, false));
     Cell start_cell = make_pair(1, 1); // Start from (1, 1) to create borders
@@ -78,30 +103,6 @@ vector<vector<bool>> generateMaze(int width, int height) {
     return maze;
 }
 
-// Helper function to get unvisited neighbors for maze generation
-vector<Cell> getUnvisitedNeighbors(const vector<vector<bool>>& maze, const Cell& cell) {
-    vector<Cell> neighbors;
-    int x = cell.first, y = cell.second;
-    int rows = maze.size(), cols = maze[0].size();
-
-    // Check left neighbor
-    if (x > 0 && !maze[y][x - 1])
-        neighbors.push_back(make_pair(x - 1, y));
-
-    // Check right neighbor
-    if (x < cols - 1 && !maze[y][x + 1])
-        neighbors.push_back(make_pair(x + 1, y));
-
-    // Check top neighbor
-    if (y > 0 && !maze[y - 1][x])
-        neighbors.push_back(make_pair(x, y - 1));
-
-    // Check bottom neighbor
-    if (y < rows - 1 && !maze[y + 1][x])
-        neighbors.push_back(make_pair(x, y + 1));
-
-    return neighbors;
-}
 
 
 

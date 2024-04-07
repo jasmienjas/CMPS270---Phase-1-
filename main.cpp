@@ -112,6 +112,75 @@ int main() {
     vector<vector<bool>> maze = generateMaze(width, height);
 
     // TODO: Implement A* algorithm to find the shortest path
+    / Helper function to get neighbors for A* algorithm
+vector<Cell> getNeighbors(const vector<vector<bool>>& maze, const Cell& cell) {
+    vector<Cell> neighbors;
+    int x = cell.first, y = cell.second;
+    int rows = maze.size(), cols = maze[0].size();
+
+    // Check left neighbor
+    if (x > 0 && maze[y][x - 1])
+        neighbors.push_back(make_pair(x - 1, y));
+
+    // Check right neighbor
+    if (x < cols - 1 && maze[y][x + 1])
+        neighbors.push_back(make_pair(x + 1, y));
+
+    // Check top neighbor
+    if (y > 0 && maze[y - 1][x])
+        neighbors.push_back(make_pair(x, y - 1));
+
+    // Check bottom neighbor
+    if (y < rows - 1 && maze[y + 1][x])
+        neighbors.push_back(make_pair(x, y + 1));
+
+    return neighbors;
+}
+
+// Reconstruct path from came_from map
+vector<Cell> reconstructPath(const unordered_map<Cell, Cell>& came_from, const Cell& end) {
+    vector<Cell> path;
+    Cell current = end;
+    while (came_from.count(current)) {
+        path.push_back(current);
+        current = came_from.at(current);
+    }
+    path.push_back(current);
+    reverse(path.begin(), path.end());
+    return path;
+}
+
+// A* algorithm
+vector<Cell> aStar(const vector<vector<bool>>& maze, const Cell& start, const Cell& end) {
+    priority_queue<pair<int, Cell>, vector<pair<int, Cell>>, greater<pair<int, Cell>>> open_set;
+    open_set.push(make_pair(0, start));
+
+    unordered_map<Cell, int> g_score;
+    unordered_map<Cell, Cell> came_from;
+
+    g_score[start] = 0;
+
+    while (!open_set.empty()) {
+        Cell current = open_set.top().second;
+        open_set.pop();
+
+        if (current == end)
+            return reconstructPath(came_from, end);
+
+        vector<Cell> neighbors = getNeighbors(maze, current);
+        for (const Cell& neighbor : neighbors) {
+            int tentative_g_score = g_score[current] + 1;
+            if (!g_score.count(neighbor) || tentative_g_score < g_score[neighbor]) {
+                came_from[neighbor] = current;
+                g_score[neighbor] = tentative_g_score;
+                int f_score = tentative_g_score + heuristic(neighbor, end);
+                open_set.push(make_pair(f_score, neighbor));
+            }
+        }
+    }
+
+    return vector<Cell>();
+}
 
     // Print the maze and the path
     for (int y = 0; y < height; y++) {

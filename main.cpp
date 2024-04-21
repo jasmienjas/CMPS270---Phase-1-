@@ -1,3 +1,4 @@
+#include <SFML/Graphics.hpp>
 #include <iostream>
 #include <vector>
 #include <queue>
@@ -9,6 +10,8 @@
 #include <functional>
 
 using namespace std;
+using namespace sf;
+
 
 // Define a pair to represent a cell in the maze
 typedef pair<int, int> Cell;
@@ -185,18 +188,39 @@ int main() {
 
     vector<Cell> path = aStar(maze, start, end);
 
-    // Print the maze and the path
-    for (int y = 0; y < height; y++) {
-        for (int x = 0; x < width; x++) {
-            Cell cell = make_pair(x, y);
-            if (find(path.begin(), path.end(), cell) != path.end())
-                cout << "*";
-            else if (maze[y][x])
-                cout << "#";
-            else
-                cout << " ";
+    // Create an SFML window
+    RenderWindow window(VideoMode(width * 20, height * 20), "Maze Navigation");
+
+    while (window.isOpen()) {
+        Event event;
+        while (window.pollEvent(event)) {
+            if (event.type == Event::Closed)
+                window.close();
         }
-        cout << endl;
+
+        window.clear(Color::White);
+
+        // Draw the maze
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                if (maze[y][x]) {
+                    RectangleShape wall(Vector2f(20.0f, 20.0f));
+                    wall.setPosition(x * 20.0f, y * 20.0f);
+                    wall.setFillColor(Color::Black);
+                    window.draw(wall);
+                }
+            }
+        }
+
+        // Draw the path
+        for (const Cell& cell : path) {
+            RectangleShape pathCell(Vector2f(20.0f, 20.0f));
+            pathCell.setPosition(cell.first * 20.0f, cell.second * 20.0f);
+            pathCell.setFillColor(Color::Green);
+            window.draw(pathCell);
+        }
+
+        window.display();
     }
 
     return 0;

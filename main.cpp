@@ -12,6 +12,7 @@
 using namespace std;
 using namespace sf;
 
+const int CELL_SIZE = 20; // Size of each cell in pixels
 
 // Define a pair to represent a cell in the maze
 typedef pair<int, int> Cell;
@@ -136,16 +137,24 @@ vector<vector<bool>> generateMaze(int width, int height) {
     Cell start_cell = make_pair(1, 1); // Start from (1, 1) to create borders
     maze[1][1] = true;
 
-    vector<Cell> frontier = {start_cell};
+    priority_queue<pair<int, Cell>, vector<pair<int, Cell>>, greater<pair<int, Cell>>> frontier;
+    unordered_set<Cell> visited;
+    for (const Cell& neighbor : getUnvisitedNeighbors(maze, start_cell)) {
+        frontier.push(make_pair(heuristic(start_cell, make_pair(width / 2, height / 2)), neighbor));
+        visited.insert(neighbor);
+    }
+
     while (!frontier.empty()) {
-        int random_index = rand() % frontier.size();
-        Cell current_cell = frontier[random_index];
-        frontier.erase(frontier.begin() + random_index);
+        Cell current_cell = frontier.top().second;
+        frontier.pop();
+        visited.insert(current_cell);
 
         vector<Cell> neighbors = getUnvisitedNeighbors(maze, current_cell);
-        if (!neighbors.empty()) {
-            int random_neighbor_index = rand() % neighbors.size();
-            Cell neighbor = neighbors[random_neighbor_index];
+        // Randomly shuffle the neighbors
+        random_shuffle(neighbors.begin(), neighbors.end());
+        int numNeighborsToAdd = neighbors.size() / 2; // Add only half of the neighbors to the frontier
+        for (int i = 0; i < numNeighborsToAdd; i++) {
+            const Cell& neighbor = neighbors[i];
             int x1 = current_cell.first, y1 = current_cell.second;
             int x2 = neighbor.first, y2 = neighbor.second;
 
@@ -153,9 +162,13 @@ vector<vector<bool>> generateMaze(int width, int height) {
             maze[y1][x1] = true;
             maze[y2][x2] = true;
 
-            // Add the remaining unvisited neighbors to the frontier
-            vector<Cell> new_neighbors = getUnvisitedNeighbors(maze, neighbor);
-            frontier.insert(frontier.end(), new_neighbors.begin(), new_neighbors.end());
+            // Add the unvisited neighbors of the neighbor to the frontier
+            for (const Cell& n : getUnvisitedNeighbors(maze, neighbor)) {
+                if (visited.find(n) == visited.end()) {
+                    frontier.push(make_pair(heuristic(n, make_pair(width / 2, height / 2)), n));
+                    visited.insert(n);
+                }
+            }
         }
     }
 
@@ -189,7 +202,18 @@ int main() {
     vector<Cell> path = aStar(maze, start, end);
 
     // Create an SFML window
-    RenderWindow window(VideoMode(width * 20, height * 20), "Maze Navigation");
+    RenderWindow window(VideoMode(width * CELL_SIZE, height * CELL_SIZE), "Maze Navigation");
+
+    // Create a circle to represent the character
+    CircleShape character(CELL_SIZE / 3.0f);
+    character.setFillColor(Color::Green);
+    character.setPosition(start.first * CELL_SIZE, start.second * CELL_SIZE);
+
+    int pathIndex = 0; // Index to keep track of the current position in the path
+
+    Clock clock;
+    float moveInterval = 0.5f; // Time interval between character moves
+    float elapsedTime = 0.0f;
 
     while (window.isOpen()) {
         Event event;
@@ -198,33 +222,47 @@ int main() {
                 window.close();
         }
 
+        elapsedTime += clock.restart().asSeconds();
+
+        if (elapsedTime >= moveInterval && pathIndex < path.size()) {
+            // Move the character to the next position in the path
+            Cell nextCell = path[pathIndex];
+            character.setPosition(nextCell.first * CELL_SIZE, nextCell.second * CELL_SIZE);
+            pathIndex++;
+            elapsedTime = 0.0f;
+        }
+
         window.clear(Color::White);
 
         // Draw the maze
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 if (maze[y][x]) {
-                    RectangleShape wall(Vector2f(20.0f, 20.0f));
-                    wall.setPosition(x * 20.0f, y * 20.0f);
-                    wall.setFillColor(Color::Black);
+                    RectangleShape wall(Vector2f(CELL_SIZE, CELL_SIZE));
+                    wall.setPosition(x * CELL_SIZE, y * CELL_SIZE);
+                    wall.setFillColor(Color(220, 220, 220)); // Light gray color
                     window.draw(wall);
                 }
             }
         }
 
         // Draw the path
-        for (const Cell& cell : path) {
-            RectangleShape pathCell(Vector2f(20.0f, 20.0f));
-            pathCell.setPosition(cell.first * 20.0f, cell.second * 20.0f);
-            pathCell.setFillColor(Color::Green);
+        for (int i = pathIndex; i < path.size(); i++) {
+            CircleShape pathCell(CELL_SIZE / 5.0f);
+            pathCell.setPosition(path[i].first * CELL_SIZE + CELL_SIZE / 2.0f - CELL_SIZE / 10.0f, path[i].second * CELL_SIZE + CELL_SIZE / 2.0f - CELL_SIZE / 10.0f);
+            pathCell.setFillColor(Color::Yellow);
             window.draw(pathCell);
         }
+
+        // Draw the character
+        window.draw(character);
 
         window.display();
     }
 
     return 0;
 }
+
 
 
 

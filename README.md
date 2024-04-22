@@ -1,4 +1,4 @@
-# CMPS270---Phase-1-
+# CMPS270---project
 Autonomous Character Movement (A* Algorithm)
 Assignment Description: 
 
@@ -44,3 +44,6 @@ Implement the A* algorithm for pathfinding. The algorithm should take the maze g
 and start/end points as input and return the optimal path.
 Integrate the maze generation process seamlessly with the rest of the project, allowing for
 easy retrieval and utilization of the generated maze within the A* algorithm for pathfinding.
+
+SFML GRAPHICS: 
+Add graphics to draw and visualize navigation and the maze using SFML library then merge to your main branch. 
